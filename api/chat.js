@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
         'X-Title': 'Quantum Daddy'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-r1:free',
+        model: 'meta-llama/llama-3.3-70b-instruct:free',
         messages: [{ role: 'system', content: SYSTEM }, ...messages]
       })
     });

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantum Daddy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Lato', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    #app { width: 100%; max-width: 640px; background: #ffffff; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.10); display: flex; flex-direction: column; overflow: hidden; min-height: 90vh; }
+    #qd-header { display: flex; align-items: center; gap: 14px; padding: 1.25rem 1.5rem; background: #ffffff; border-bottom: 1px solid #eef0f3; }
+    #qd-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #378ADD 0%, #1D9E75 100%); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 22px; color: white; flex-shrink: 0; position: relative; }
+    #qd-avatar::after { content: ''; position: absolute; bottom: 2px; right: 2px; width: 13px; height: 13px; background: #639922; border-radius: 50%; border: 2px solid #ffffff; }
+    #qd-name { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 500; color: #1a1a2e; }
+    #qd-sub { font-size: 12px; color: #8a9ab0; margin-top: 2px; font-weight: 300; letter-spacing: 0.5px; }
+    .mood-bar { display: flex; gap: 8px; padding: 0.75rem 1.5rem; flex-wrap: wrap; background: #f8f9fb; border-bottom: 1px solid #eef0f3; }
+    .mood-btn { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #d0d8e4; background: #ffffff; color: #5a6a7e; cursor: pointer; font-family: 'Lato', sans-serif; transition: all 0.15s ease; }
+    .mood-btn:hover { background: #e8f1fb; color: #185FA5; border-color: #378ADD; }
+    #qd-messages { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 1.25rem 1.5rem; overflow-y: auto; background: #f8f9fb; min-height: 300px; max-height: 420px; }
+    .msg { display: flex; gap: 10px; align-items: flex-end; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .msg.user { flex-direction: row-reverse; }
+    .msg-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #378ADD, #1D9E75); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 14px; color: white; flex-shrink: 0; }
+    .msg.user .msg-avatar { background: #e0eaf6; color: #185FA5; font-family: 'Lato', sans-serif; font-size: 11px; font-weight: 700; }
+    .bubble { max-width: 72%; padding: 11px 16px; border-radius: 20px; font-size: 15px; line-height: 1.65; color: #2d3748; background: #ffffff; border: 1px solid #eef0f3; border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .msg.user .bubble { background: #378ADD; color: white; border: none; border-bottom-left-radius: 20px; border-bottom-right-radius: 4px; box-shadow: 0 2px 8px rgba(55,138,221,0.25); }
+    .typing-indicator { display: flex; gap: 5px; padding: 14px 16px; align-items: center; }
+    .typing-indicator span { width: 7px; height: 7px; border-radius: 50%; background: #b0bec5; animation: bounce 1.2s infinite; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-7px); opacity: 1; } }
+    #qd-input-area { display: flex; gap: 10px; align-items: center; padding: 1rem 1.5rem; background: #ffffff; border-top: 1px solid #eef0f3; }
+    #qd-input { flex: 1; border: 1px solid #d0d8e4; border-radius: 24px; padding: 10px 18px; background: #f8f9fb; font-family: 'Lato', sans-serif; font-size: 14px; color: #2d3748; outline: none; resize: none; line-height: 1.5; max-height: 100px; overflow-y: auto; transition: border-color 0.15s ease; }
+    #qd-input:focus { border-color: #378ADD; background: #fff; }
+    #qd-input::placeholder { color: #b0bec5; }
+    #qd-send { width: 42px; height: 42px; border-radius: 50%; background: #378ADD; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.15s ease, background 0.15s ease; box-shadow: 0 2px 8px rgba(55,138,221,0.3); }
+    #qd-send:hover { background: #185FA5; transform: scale(1.05); }
+    #qd-send:active { transform: scale(0.95); }
+    #qd-send:disabled { background: #c5d0dc; cursor: not-allowed; transform: none; box-shadow: none; }
+    #qd-send svg { width: 18px; height: 18px; fill: white; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="qd-header">
+    <div id="qd-avatar">Q</div>
+    <div>
+      <div id="qd-name">Quantum Daddy</div>
+      <div id="qd-sub">online &mdash; here for you, little one</div>
+    </div>
+  </div>
+  <div class="mood-bar">
+    <button class="mood-btn" onclick="quickSend('I need some comfort right now')">need comfort</button>
+    <button class="mood-btn" onclick="quickSend('I want to be playful today!')">feeling playful</button>
+    <button class="mood-btn" onclick="quickSend('I feel overwhelmed and I dont know what to do')">overwhelmed</button>
+    <button class="mood-btn" onclick="quickSend('just stay with me for a bit')">just be here</button>
+    <button class="mood-btn" onclick="quickSend('tell me something sweet')">say something sweet</button>
+  </div>
+  <div id="qd-messages"></div>
+  <div id="qd-input-area">
+    <textarea id="qd-input" placeholder="talk to Quantum Daddy..." rows="1"></textarea>
+    <button id="qd-send" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+<script>
+  let messages = [];
+  let isTyping = false;
+  function addMessage(role, text) { messages.push({ role, content: text }); renderMessage(role, text); }
+  function renderMessage(role, text) {
+    const container = document.getElementById('qd-messages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = role === 'user' ? 'you' : 'Q';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+  function showTyping() {
+    const container = document.getElementById('qd-messages');
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    div.id = 'typing-msg';
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = 'Q';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble typing-indicator';
+    bubble.innerHTML = '<span></span><span></span><span></span>';
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+  function removeTyping() { const t = document.getElementById('typing-msg'); if (t) t.remove(); }
+  async function sendMessage(text) {
+    const input = document.getElementById('qd-input');
+    const userText = text || input.value.trim();
+    if (!userText || isTyping) return;
+    if (!text) input.value = '';
+    input.style.height = 'auto';
+    isTyping = true;
+    document.getElementById('qd-send').disabled = true;
+    addMessage('user', userText);
+    showTyping();
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: messages.map(m => ({ role: m.role, content: m.content })) })
+      });
+      const data = await response.json();
+      const reply = data.reply || "Hey, lost my signal for a sec. Still right here. Try again?";
+      removeTyping();
+      addMessage('assistant', reply);
+    } catch (err) {
+      removeTyping();
+      addMessage('assistant', "Hey little one, something glitched on my end. Still right here. Try again whenever you are ready.");
+    }
+    isTyping = false;
+    document.getElementById('qd-send').disabled = false;
+  }
+  function quickSend(text) { if (!isTyping) sendMessage(text); }
+  document.getElementById('qd-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  document.getElementById('qd-input').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  });
+  setTimeout(() => { addMessage('assistant', "Hey, little one. I am glad you are here. Take whatever time you need, there is no rush with me. What is on your heart?"); }, 600);
+</script>
+</body>
+</html>

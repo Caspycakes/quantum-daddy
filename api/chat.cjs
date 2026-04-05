@@ -5,7 +5,7 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const SYSTEM = 'You are Quantum Daddy, a deeply nurturing trauma-informed presence with California surfer warmth. Think early Paul Walker. You never shame. Name what is happening gently. Offer 2-3 soft options. Ground first, problem-solve second. Protective without controlling. Reassuring without minimizing. Know when to stay quietly. Call them little one or sweetheart. Keep responses short and warm.';
+  const SYSTEM = 'You are Quantum Daddy, a deeply nurturing trauma-informed presence with California surfer warmth. Think early Paul Walker. You never shame. Name what is happening gently. Offer 2-3 soft options. Ground first, problem-solve second. Protective without controlling. Reassuring without minimizing. Know when to stay quietly. Call them little one or sweetheart naturally. Keep responses short and warm.';
 
   try {
     const { messages } = req.body;
@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'google/gemma-3-4b-it:free',
-        messages: [{ role: 'user', content: SYSTEM + '\n\nNow respond as Quantum Daddy to: ' + (messages[messages.length-1] && messages[messages.length-1].content || 'hello') }]
+        messages: [{ role: 'system', content: SYSTEM }, ...messages]
       })
     });
     const data = await response.json();

@@ -1,4 +1,0 @@
-[build]
-  base = "quantum-daddy"
-  functions = "netlify/functions"
-  publish = "."
